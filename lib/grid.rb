@@ -2,9 +2,20 @@ require 'cell'
 
 class Grid
 
-  attr_reader :cells
-  def initialize
-    @cells = Array.new(9){Array.new(9){Cell.new}}
+  attr_reader :board
+  def initialize puzzle
+    @puzzle = puzzle.chars
+    @board = nil
+  end
+
+  def assign_values_to_cells
+    @board = @puzzle.map do |value|
+      Cell.new value.to_i
+    end.each_slice(9).to_a
+  end
+
+  def cell_value row,column
+    @board[row][column].value
   end
 
   def rows(row_index)
