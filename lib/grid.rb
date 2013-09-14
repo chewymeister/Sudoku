@@ -1,4 +1,5 @@
 require 'cell'
+require 'box'
 
 class Grid
 
@@ -6,6 +7,7 @@ class Grid
   def initialize puzzle
     @puzzle = puzzle.chars
     @board = nil
+    @box = Box.new
   end
 
   def assign_values_to_cells
@@ -14,37 +16,63 @@ class Grid
     end.each_slice(9).to_a
   end
 
+  def assign_box_index_values board
+    @box.assign_box_index_1 board
+    @box.assign_box_index_2 board
+    @box.assign_box_index_3 board
+    @box.assign_box_index_4 board
+    @box.assign_box_index_5 board
+    @box.assign_box_index_6 board
+    @box.assign_box_index_7 board
+    @box.assign_box_index_8 board
+    @box.assign_box_index_9 board
+  end    
+
   def cell_value row,column
     @board[row][column].value
   end
 
-  def rows(row_index)
-    @cells[row_index]
+  def cells_box_index_value row,column
+    @board[row][column].box_index
   end
 
-  def columns(column_index)
-    @cells.map do |row|
+  def fetch_row(row_index)
+    @board[row_index]
+  end
+
+  def fetch_column(column_index)
+    @board.map do |row|
       row[column_index]
     end
   end
 
-  def boxes(box_index)
-    Array.new(9){Cell.new}
+  def fetch_box(box_index)
+    case
+      when box_index == 1
+        @board[0..2].map{|row| row[0..2]}
+      when box_index == 2
+        @board[0..2].map{|row| row[3..5]}
+      when box_index == 3
+        @board[0..2].map{|row| row[6..9]}
+      when box_index == 4
+        @board[3..5].map{|row| row[0..2]}
+      when box_index == 5
+        @board[3..5].map{|row| row[3..5]}
+      when box_index == 6
+        @board[3..5].map{|row| row[6..9]}
+      when box_index == 7
+        @board[6..9].map{|row| row[0..2]}
+      when box_index == 8
+        @board[6..9].map{|row| row[3..5]}
+      when box_index == 9
+        @board[6..9].map{|row| row[6..9]}
+      else
+        puts "error"
+    end
   end
-
-  def assign_box_index value
-    @cells[0..2].map do |row|
-      row[0..2].map do |element|
-        element.box_index_is value
-      end
-    end.flatten
-  end
-
-
 
   def solve
 
   end
-
 
 end
