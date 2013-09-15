@@ -2,11 +2,7 @@ require 'cell'
 require 'grid'
 
 class Box
-  # attr_reader :box_1
-  def initialize
-    # @box_1 = nil
-  end
-
+  
   def assign_box_index_1 board
     box_1 = board[0..2].map do |row|
       row[0..2]

@@ -16,23 +16,48 @@ class Grid
     end.each_slice(9).to_a
   end
 
-  def assign_box_index_values board
-    @box.assign_box_index_1 board
-    @box.assign_box_index_2 board
-    @box.assign_box_index_3 board
-    @box.assign_box_index_4 board
-    @box.assign_box_index_5 board
-    @box.assign_box_index_6 board
-    @box.assign_box_index_7 board
-    @box.assign_box_index_8 board
-    @box.assign_box_index_9 board
+  def assign_box_index_values 
+    @box.assign_box_index_1 @board
+    @box.assign_box_index_2 @board
+    @box.assign_box_index_3 @board
+    @box.assign_box_index_4 @board
+    @box.assign_box_index_5 @board
+    @box.assign_box_index_6 @board
+    @box.assign_box_index_7 @board
+    @box.assign_box_index_8 @board
+    @box.assign_box_index_9 @board
   end    
+
+  def assign_row_column_index_values
+    row_index = nil
+    column_index = nil
+    @board.each do |row|
+      row_index = @board.index(row)
+      row.each do |cell|
+        column_index = row.index(cell)
+        cell.assign_row(row_index)
+        cell.assign_column(column_index)
+      end
+    end                 
+  end
+
+  def find_row_index row,column
+    @board[row][column].row_index
+  end
+
+  def find_column_index row,column
+    @board[row][column].column_index
+  end
+
+  def find_neighbours row,column
+    @board[row][column].neighbours
+  end
 
   def cell_value row,column
     @board[row][column].value
   end
 
-  def cells_box_index_value row,column
+  def find_box_index row,column
     @board[row][column].box_index
   end
 
@@ -71,8 +96,62 @@ class Grid
     end
   end
 
-  def solve
-
+  def set_board
+    assign_values_to_cells
+    assign_box_index_values
+    assign_row_column_index_values
   end
 
+  def assign_neighbours_to cell
+      neighbours = []
+    # row_index = nil
+    # column_index = nil
+    # box_index = nil
+    # @board.flatten.each do |cell|
+      row_index = cell.row_index
+      column_index = cell.column_index
+      box_index = cell.box_index
+      neighbours << fetch_row(row_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_column(column_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_box(box_index).flatten.map{|cell|cell.value}
+      cell.assign neighbours
+      # neighbours.clear
+    # end    
+  end
+
+  def solve
+    @board.flatten.each do |cell|
+      if cell.filled_out?
+        cell
+      else 
+        assign_neighbours_to cell
+        cell.attempt_to_solve cell.neighbours
+      end
+    end
+  end
+
+  def solved?
+    unsolved_cells = []
+    unsolved_cells << @board.flatten.select do |cell|
+      !cell.filled_out?
+    end
+    unsolved_cells.flatten.count == 0
+  end
+
+  def solve_board
+    until solved?
+      solve
+    end
+  end
+
+  # def inspect
+  #   print -------------------------------------
+  #   @board.each do |row|
+  #     row.each do |cell|
+  #       print "#{cell.value}|"
+  #     end
+  #    print -------------------------------------
+  #   end
+  # end
 end
+
