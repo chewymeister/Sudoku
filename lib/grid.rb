@@ -104,10 +104,6 @@ class Grid
 
   def assign_neighbours_to cell
       neighbours = []
-    # row_index = nil
-    # column_index = nil
-    # box_index = nil
-    # @board.flatten.each do |cell|
       row_index = cell.row_index
       column_index = cell.column_index
       box_index = cell.box_index
@@ -115,8 +111,6 @@ class Grid
       neighbours << fetch_column(column_index).flatten.map {|cell|cell.value}
       neighbours << fetch_box(box_index).flatten.map{|cell|cell.value}
       cell.assign neighbours
-      # neighbours.clear
-    # end    
   end
 
   def solve
@@ -144,14 +138,15 @@ class Grid
     end
   end
 
-  # def inspect
-  #   print -------------------------------------
-  #   @board.each do |row|
-  #     row.each do |cell|
-  #       print "#{cell.value}|"
-  #     end
-  #    print -------------------------------------
-  #   end
-  # end
+  def inspect_board
+    puts "-------------------------------------"
+    @board.each do |row|
+      row.each do |cell|
+        print "| #{cell.value} "
+      end
+    puts "|\n-------------------------------------"
+    end
+  end
+
 end
 

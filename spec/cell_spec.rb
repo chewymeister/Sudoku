@@ -47,4 +47,6 @@ describe Cell do
     expect(cell.filled_out?).to be_true
   end
 
+  
+
 end

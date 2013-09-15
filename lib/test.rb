@@ -1,9 +1,15 @@
+#'209703810410205607875196023306520100100004359047309068000400980924867001050000002'
+#'010200604000004023000000100007490008080352940050017036506020001179083000803600759'
+#'035020040200700036000400590086970000000180000000056807762000001013000000504200000'
+#'430060090001020746607050080005007000010840000000003002070905800928100300000200000'
+#'650008003700010890310590047030281006200000004501607000820060570104709302970020400'
 class Cell
   attr_reader :value
   attr_reader :box_index
   attr_reader :neighbours
   attr_reader :row_index
   attr_reader :column_index
+  attr_reader :candidates
   def initialize value
     @value = value
     @candidates = [1,2,3,4,5,6,7,8,9]
@@ -21,16 +27,22 @@ class Cell
     @column_index = index
   end
 
-  def assign neighbours
-    @neighbours + neighbours
+  def assign(neighbours)
+    @neighbours += neighbours
+    @neighbours.flatten!
   end
 
   def filled_out?
     @value != 0
   end
 
-  def candidates(neighbours)
-    @candidates - neighbours
+  def attempt_to_solve(neighbours)
+    @candidates -= neighbours
+    if @candidates.count == 1
+      @value = @candidates.pop
+    else
+      @candidates
+    end
   end
 
   def assign_box_index value
@@ -89,6 +101,10 @@ class Grid
     @board[row][column].column_index
   end
 
+  def find_neighbours row,column
+    @board[row][column].neighbours
+  end
+
   def cell_value row,column
     @board[row][column].value
   end
@@ -138,35 +154,59 @@ class Grid
     assign_row_column_index_values
   end
 
-  def assign_neighbours_to_all_cells
-    neighbours = []
-    row_index = nil
-    column_index = nil
-    box_index = nil
-    @board.flatten.each do |cell|
+  def assign_neighbours_to cell
+      neighbours = []
       row_index = cell.row_index
       column_index = cell.column_index
       box_index = cell.box_index
-      neighbours << fetch_row(row_index){|cell|cell.value}.to_a
-      neighbours << fetch_column(column_index){|cell|cell.value}.to_a
-      neighbours << fetch_box(box_index){|cell|cell.value}.to_a
+      neighbours << fetch_row(row_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_column(column_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_box(box_index).flatten.map{|cell|cell.value}
       cell.assign neighbours
-      neighbours.clear
-    end    
   end
-
-
 
   def solve
-
+    @board.flatten.each do |cell|
+      if cell.filled_out?
+        cell
+      else 
+        assign_neighbours_to cell
+        cell.attempt_to_solve cell.neighbours
+      end
+    end
   end
+
+  def solved?
+    unsolved_cells = []
+    unsolved_cells << @board.flatten.select do |cell|
+      !cell.filled_out?
+    end
+    unsolved_cells.flatten.count == 0
+  end
+
+  def solve_board
+    until solved?
+      solve
+    end
+  end
+
+  def inspect_board
+    puts "-------------------------------------"
+    @board.each do |row|
+      row.each do |cell|
+        print "| #{cell.value} "
+      end
+    puts "|\n-------------------------------------"
+    end
+  end
+
 end
 
 # require 'cell'
 # require 'grid'
 
 class Box
-  
+
   def assign_box_index_1 board
     box_1 = board[0..2].map do |row|
       row[0..2]

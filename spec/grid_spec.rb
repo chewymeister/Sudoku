@@ -81,7 +81,7 @@ describe Grid do
   end
 
   xit 'assigns neighbours to each cell' do
-    grid.assign_neighbours_to_all_cells
+    grid.assign_neighbours_to
     expect(grid.board.flatten.each {|cell| cell.neighbours}).not_to be_nil
   end
 
@@ -114,9 +114,14 @@ describe Grid do
   end
 
   it 'displays the whole grid' do
-    grid.inspect
+    grid.inspect_board
   end
-  
+
+  it 'displays a solved board' do
+    grid.solve_board
+    grid.inspect_board
+  end
+
 end
 
 

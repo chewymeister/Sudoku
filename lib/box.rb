@@ -2,7 +2,7 @@ require 'cell'
 require 'grid'
 
 class Box
-  
+
   def assign_box_index_1 board
     box_1 = board[0..2].map do |row|
       row[0..2]
