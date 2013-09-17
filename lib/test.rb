@@ -3,20 +3,69 @@
 #'035020040200700036000400590086970000000180000000056807762000001013000000504200000'
 #'430060090001020746607050080005007000010840000000003002070905800928100300000200000'
 #'650008003700010890310590047030281006200000004501607000820060570104709302970020400'
+
+# require 'cell'
+# require 'grid'
+
+#HARD PUZZLE:"800000000003600000070090200050007000000045700000100030001000068008500010090000400"
+
+# require 'cell'
+# require 'grid'
+
+class Box
+
+  def row_range(index)
+    case index
+    when 1,2,3
+      0..2
+    when 4,5,6
+      3..5
+    when 7,8,9
+      6..8
+    end
+  end
+
+  def column_range(index)
+    case index
+    when 1,4,7
+      0..2
+    when 2,5,8
+      3..5
+    when 3,6,9
+      6..8
+    end
+  end
+
+  def assign_box_index_new(board, index)
+    board[row_range(index)].map do |row|
+      row[column_range(index)]
+    end.flatten.each do |cell|
+      cell.assign_box_index index
+    end
+  end
+
+  def assign_box_indices board
+    for index in 1..9
+      assign_box_index_new(board,index)
+    end
+  end
+
+end
+
 class Cell
-  attr_reader :value
+
+  attr_accessor :value
   attr_reader :box_index
   attr_reader :neighbours
   attr_reader :row_index
   attr_reader :column_index
   attr_reader :candidates
+
   def initialize value
     @value = value
     @candidates = [1,2,3,4,5,6,7,8,9]
     @neighbours = []
-    @box_index = nil
-    @row_index = nil
-    @column_index = nil
+    @solvable = true
   end
 
   def assign_row index
@@ -30,19 +79,40 @@ class Cell
   def assign(neighbours)
     @neighbours += neighbours
     @neighbours.flatten!
+    # @neighbours.clear
   end
 
   def filled_out?
     @value != 0
   end
 
+  def solvable?
+    @solvable == true
+  end
+
+  def unsolvable!
+    @solvable = false
+  end
+
   def attempt_to_solve(neighbours)
-    @candidates -= neighbours
-    if @candidates.count == 1
-      @value = @candidates.pop
-    else
-      @candidates
-    end
+    # attempt = @candidates - neighbours
+    # if attempt == @candidates
+    #   @neighbours.clear
+    #   unsolvable!
+    # else
+      @candidates -= neighbours
+      if @candidates.count == 1
+        @value = @candidates.pop
+        @neighbours.clear
+      else
+        @neighbours.clear
+        @candidates
+      end
+    # end
+  end
+
+  def assume candidate
+    @value = candidate
   end
 
   def assign_box_index value
@@ -69,15 +139,7 @@ class Grid
   end
 
   def assign_box_index_values 
-    @box.assign_box_index_1 @board
-    @box.assign_box_index_2 @board
-    @box.assign_box_index_3 @board
-    @box.assign_box_index_4 @board
-    @box.assign_box_index_5 @board
-    @box.assign_box_index_6 @board
-    @box.assign_box_index_7 @board
-    @box.assign_box_index_8 @board
-    @box.assign_box_index_9 @board
+    @box.assign_box_indices @board
   end    
 
   def assign_row_column_index_values
@@ -144,7 +206,7 @@ class Grid
       when box_index == 9
         @board[6..9].map{|row| row[6..9]}
       else
-        puts "error"
+        # puts "error"
     end
   end
 
@@ -156,12 +218,9 @@ class Grid
 
   def assign_neighbours_to cell
       neighbours = []
-      row_index = cell.row_index
-      column_index = cell.column_index
-      box_index = cell.box_index
-      neighbours << fetch_row(row_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_column(column_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_box(box_index).flatten.map{|cell|cell.value}
+      neighbours << fetch_row(cell.row_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_column(cell.column_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_box(cell.box_index).flatten.map{|cell|cell.value}
       cell.assign neighbours
   end
 
@@ -177,17 +236,70 @@ class Grid
   end
 
   def solved?
-    unsolved_cells = []
-    unsolved_cells << @board.flatten.select do |cell|
+    @board.flatten.select do |cell|
       !cell.filled_out?
-    end
-    unsolved_cells.flatten.count == 0
+    end.count == 0
   end
 
+  # def board_unsolvable?
+  #   @board.flatten.select do |cell|
+  #     !cell.solvable?
+  #   end.count >= 1
+  # end
+
+SIZE = 81
+
   def solve_board
-    until solved?
+    # if !board_unsolvable?
+    #   until solved?
+    #     solve
+    #   end
+    # elsif board_unsolvable?
+    #   try_harder!
+    # end
+    outstanding_before, looping = SIZE, false
+    while !solved? && !looping
       solve
+      outstanding = @board.flatten.count {|c| c.filled_out?}
+      looping = outstanding_before == outstanding
+      outstanding_before = outstanding
     end
+      try_harder unless solved?
+  end
+
+  def try_harder
+    blank_cell = @board.flatten.select do |cell|
+      !cell.filled_out?
+    end.first
+
+    blank_cell.candidates.each do |candidate|
+      blank_cell.assume candidate
+      board = replicate(@board)
+      board.set_board
+      board.solve_board
+
+      if board.solved?
+        steal_solution(board)
+        return @board
+      end
+    end
+  end
+
+  def steal_solution board
+    @board = board
+  end
+
+  def replicate board
+    board = Grid.new create_board_string(board)
+    board.set_board
+    board
+  end
+
+  def create_board_string board
+     board_string = board.flatten.map do |cell|
+      cell.value
+    end.join
+    board_string
   end
 
   def inspect_board
@@ -200,102 +312,6 @@ class Grid
     end
   end
 
-end
-
-# require 'cell'
-# require 'grid'
-
-class Box
-
-  def assign_box_index_1 board
-    box_1 = board[0..2].map do |row|
-      row[0..2]
-    end
-
-    box_1.flatten.each do |cell|
-      cell.assign_box_index 1
-    end
-  end
-
-  def assign_box_index_2 board
-    box_2 = board[0..2].map do |row|
-      row[3..5]
-    end
-
-    box_2.flatten.each do |cell|
-      cell.assign_box_index 2
-    end
-  end
-
-  def assign_box_index_3 board
-    box_3 = board[0..2].map do |row|
-      row[6..9]
-    end
-
-    box_3.flatten.each do |cell|
-      cell.assign_box_index 3
-    end
-  end
-
-  def assign_box_index_4 board
-    box_4 = board[3..5].map do |row|
-      row[0..2]
-    end
-
-    box_4.flatten.each do |cell|
-      cell.assign_box_index 4
-    end
-  end
-
-  def assign_box_index_5 board
-    box_5 = board[3..5].map do |row|
-      row[3..5]
-    end
-
-    box_5.flatten.each do |cell|
-      cell.assign_box_index 5
-    end
-  end
-
-  def assign_box_index_6 board
-    box_6 = board[3..5].map do |row|
-      row[6..9]
-    end
-
-    box_6.flatten.each do |cell|
-      cell.assign_box_index 6
-    end
-  end
-
-  def assign_box_index_7 board
-    box_7 = board[6..9].map do |row|
-      row[0..2]
-    end
-
-    box_7.flatten.each do |cell|
-      cell.assign_box_index 7
-    end
-  end
-
-  def assign_box_index_8 board
-    box_8 = board[6..9].map do |row|
-      row[3..5]
-    end
-
-    box_8.flatten.each do |cell|
-      cell.assign_box_index 8
-    end
-  end
-
-
-  def assign_box_index_9 board
-    box_9 = board[6..9].map do |row|
-      row[6..9]
-    end
-
-    box_9.flatten.each do |cell|
-      cell.assign_box_index 9
-    end
-  end
 
 end
+

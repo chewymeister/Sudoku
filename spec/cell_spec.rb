@@ -47,6 +47,18 @@ describe Cell do
     expect(cell.filled_out?).to be_true
   end
 
-  
+  xit 'does nothing if cell is unsolvable' do
+    neighbours = [1,2,3]
+    cell.attempt_to_solve neighbours
+    cell.attempt_to_solve neighbours
+    expect(cell.solvable?).to be_false
+  end
+
+
+  it 'assumes the candidate given to it by the try_harder! method' do
+    cell.assume 7
+    expect(cell.filled_out?).to be_true
+  end
 
 end
+

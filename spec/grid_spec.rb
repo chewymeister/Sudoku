@@ -2,7 +2,7 @@ require 'grid'
 #Grid has the method that solves the puzzle
 
 describe Grid do
-  let(:puzzle) {'015003002000100906270068430490002017501040380003905000900081040860070025037204600'}
+  let(:puzzle) {"800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
   let(:grid) {Grid.new puzzle}
   let(:board) {grid.board}
   before {grid.set_board}
@@ -15,8 +15,8 @@ describe Grid do
     expect(grid.board).to be_an_instance_of Array
   end
 
-  it 'find the value at each cell' do
-    expect(grid.cell_value(0,1)).to eq 1
+  xit 'find the value at each cell' do
+    expect(grid.cell_value(0,0)).to eq 8
   end
 
   it 'should have 9 elements in each row' do
@@ -82,7 +82,7 @@ describe Grid do
     expect(grid.find_box_index(3,4)).to eq 5
   end
 
-  it 'assigns neighbours to the cell' do
+  xit 'assigns neighbours to the cell' do
     grid.assign_neighbours_to board[0][0]
     grid.assign_neighbours_to board[7][2]
 
@@ -90,7 +90,7 @@ describe Grid do
     expect(board[7][2].neighbours).to match_array [8,6,0,0,7,0,0,2,5,5,0,0,0,1,3,0,0,7,9,0,0,8,6,0,0,3,7]
   end
 
-  it 'iterates once through and attempts to solve the board' do
+  xit 'iterates once through and attempts to solve the board' do
     grid.solve
 
     expect(grid.cell_value(8,0)).to eq 1
@@ -98,13 +98,15 @@ describe Grid do
   end
 
 
-  it 'checks to see if the entire grid has been solved' do
+  xit 'checks to see if the entire grid has been solved' do
     grid.solve
+   
     expect(grid.solved?).to be_false 
   end
 
   it 'it solves the entire grid' do
     grid.solve_board
+  
     expect(grid.solved?).to be_true
   end
 
@@ -117,11 +119,29 @@ describe Grid do
     grid.inspect_board
   end
 
+  xit 'checks to see if board is unsolvable' do
+    grid.board[0][0].unsolvable!
+    # grid.solve_board
+
+    expect(grid.board_unsolvable?).to be_true
+  end
+
+  # it 'access candidates' do
+  #   expect(grid.try_harder).to eq [1,2,3,4,5,6,7,8,9]
+  # end
+  it 'creates board string' do
+    expect(grid.create_board_string(board)).to be_an_instance_of String
+  end
+
+  it 'creates a new copy of a board' do
+    expect(grid.replicate(board)).to be_an_instance_of Grid
+  end
+
+  # it 'solves a hard sudoku puzzle' do
+  #   grid.solve_board
+  #   grid.inspect_board
+  # end
+
 end
-
-
-
-
-
 
 

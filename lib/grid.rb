@@ -84,7 +84,7 @@ class Grid
       when box_index == 9
         @board[6..9].map{|row| row[6..9]}
       else
-        puts "error"
+        # puts "error"
     end
   end
 
@@ -96,12 +96,9 @@ class Grid
 
   def assign_neighbours_to cell
       neighbours = []
-      row_index = cell.row_index
-      column_index = cell.column_index
-      box_index = cell.box_index
-      neighbours << fetch_row(row_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_column(column_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_box(box_index).flatten.map{|cell|cell.value}
+      neighbours << fetch_row(cell.row_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_column(cell.column_index).flatten.map {|cell|cell.value}
+      neighbours << fetch_box(cell.box_index).flatten.map{|cell|cell.value}
       cell.assign neighbours
   end
 
@@ -122,10 +119,65 @@ class Grid
     end.count == 0
   end
 
+  # def board_unsolvable?
+  #   @board.flatten.select do |cell|
+  #     !cell.solvable?
+  #   end.count >= 1
+  # end
+
+SIZE = 81
+
   def solve_board
-    until solved?
+    # if !board_unsolvable?
+    #   until solved?
+    #     solve
+    #   end
+    # elsif board_unsolvable?
+    #   try_harder!
+    # end
+    outstanding_before, looping = SIZE, false
+    while !solved? && !looping
       solve
+      outstanding = @board.flatten.count {|c| c.filled_out?}
+      looping = outstanding_before == outstanding
+      outstanding_before = outstanding
     end
+      try_harder unless solved?
+  end
+
+  def try_harder
+    blank_cell = @board.flatten.select do |cell|
+      !cell.filled_out?
+    end.first
+
+    blank_cell.candidates.each do |candidate|
+      blank_cell.assume candidate
+      board_copy = replicate(@board)
+
+      board_copy.solve_board
+
+      if board_copy.solved?
+        steal_solution(board_copy)
+        return @board
+      end
+    end
+  end
+
+  def steal_solution board
+    @board = board.board
+  end
+
+  def replicate board
+    board_replicate = Grid.new create_board_string(board)
+    board_replicate.set_board
+    board_replicate
+  end
+
+  def create_board_string board
+     board_string = board.flatten.map do |cell|
+      cell.value
+    end.join
+    board_string
   end
 
   def inspect_board
@@ -137,6 +189,7 @@ class Grid
     puts "|\n-------------------------------------"
     end
   end
+
 
 end
 
