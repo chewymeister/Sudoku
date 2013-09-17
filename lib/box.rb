@@ -3,94 +3,39 @@ require 'grid'
 
 class Box
 
-  def assign_box_index_1 board
-    box_1 = board[0..2].map do |row|
-      row[0..2]
-    end
-
-    box_1.flatten.each do |cell|
-      cell.assign_box_index 1
-    end
-  end
-
-  def assign_box_index_2 board
-    box_2 = board[0..2].map do |row|
-      row[3..5]
-    end
-
-    box_2.flatten.each do |cell|
-      cell.assign_box_index 2
+  def row_range(index)
+    case index
+    when 1,2,3
+      0..2
+    when 4,5,6
+      3..5
+    when 7,8,9
+      6..8
     end
   end
 
-  def assign_box_index_3 board
-    box_3 = board[0..2].map do |row|
-      row[6..9]
-    end
-
-    box_3.flatten.each do |cell|
-      cell.assign_box_index 3
-    end
-  end
-
-  def assign_box_index_4 board
-    box_4 = board[3..5].map do |row|
-      row[0..2]
-    end
-
-    box_4.flatten.each do |cell|
-      cell.assign_box_index 4
+  def column_range(index)
+    case index
+    when 1,4,7
+      0..2
+    when 2,5,8
+      3..5
+    when 3,6,9
+      6..8
     end
   end
 
-  def assign_box_index_5 board
-    box_5 = board[3..5].map do |row|
-      row[3..5]
-    end
-
-    box_5.flatten.each do |cell|
-      cell.assign_box_index 5
+  def assign_box_index_new(board, index)
+    board[row_range(index)].map do |row|
+      row[column_range(index)]
+    end.flatten.each do |cell|
+      cell.assign_box_index index
     end
   end
 
-  def assign_box_index_6 board
-    box_6 = board[3..5].map do |row|
-      row[6..9]
-    end
-
-    box_6.flatten.each do |cell|
-      cell.assign_box_index 6
-    end
-  end
-
-  def assign_box_index_7 board
-    box_7 = board[6..9].map do |row|
-      row[0..2]
-    end
-
-    box_7.flatten.each do |cell|
-      cell.assign_box_index 7
-    end
-  end
-
-  def assign_box_index_8 board
-    box_8 = board[6..9].map do |row|
-      row[3..5]
-    end
-
-    box_8.flatten.each do |cell|
-      cell.assign_box_index 8
-    end
-  end
-
-
-  def assign_box_index_9 board
-    box_9 = board[6..9].map do |row|
-      row[6..9]
-    end
-
-    box_9.flatten.each do |cell|
-      cell.assign_box_index 9
+  def assign_box_indices board
+    for index in 1..9
+      assign_box_index_new(board,index)
     end
   end
 

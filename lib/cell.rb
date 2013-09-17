@@ -9,9 +9,6 @@ class Cell
     @value = value
     @candidates = [1,2,3,4,5,6,7,8,9]
     @neighbours = []
-    @box_index = nil
-    @row_index = nil
-    @column_index = nil
   end
 
   def assign_row index

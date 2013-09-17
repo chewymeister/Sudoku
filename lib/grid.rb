@@ -17,15 +17,7 @@ class Grid
   end
 
   def assign_box_index_values 
-    @box.assign_box_index_1 @board
-    @box.assign_box_index_2 @board
-    @box.assign_box_index_3 @board
-    @box.assign_box_index_4 @board
-    @box.assign_box_index_5 @board
-    @box.assign_box_index_6 @board
-    @box.assign_box_index_7 @board
-    @box.assign_box_index_8 @board
-    @box.assign_box_index_9 @board
+    @box.assign_box_indices @board
   end    
 
   def assign_row_column_index_values
@@ -125,11 +117,9 @@ class Grid
   end
 
   def solved?
-    unsolved_cells = []
-    unsolved_cells << @board.flatten.select do |cell|
+    @board.flatten.select do |cell|
       !cell.filled_out?
-    end
-    unsolved_cells.flatten.count == 0
+    end.count == 0
   end
 
   def solve_board

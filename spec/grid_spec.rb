@@ -41,6 +41,8 @@ describe Grid do
 
   it 'returns the contents of a specific box' do
     expect(grid.find_box_index(0,2)).to eq 1
+    expect(grid.find_box_index(0,0)).to eq 1
+    expect(grid.find_box_index(5,8)).to eq 6
   end
 
   it 'returns the cells box index value' do
@@ -80,11 +82,6 @@ describe Grid do
     expect(grid.find_box_index(3,4)).to eq 5
   end
 
-  xit 'assigns neighbours to each cell' do
-    grid.assign_neighbours_to
-    expect(grid.board.flatten.each {|cell| cell.neighbours}).not_to be_nil
-  end
-
   it 'assigns neighbours to the cell' do
     grid.assign_neighbours_to board[0][0]
     grid.assign_neighbours_to board[7][2]
@@ -95,10 +92,8 @@ describe Grid do
 
   it 'iterates once through and attempts to solve the board' do
     grid.solve
-    # grid.solve
 
     expect(grid.cell_value(8,0)).to eq 1
-    # expect(grid.cell_value(1,4)).to eq 2
     expect(grid.cell_value(4,8)).to eq 9
   end
 
