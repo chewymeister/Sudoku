@@ -6,7 +6,6 @@ class Grid
   attr_reader :board
   def initialize puzzle
     @puzzle = puzzle.chars
-    # @board = nil
     @box = Box.new
   end
 
@@ -63,6 +62,10 @@ class Grid
     end
   end
 
+  def get_cell_values_from board
+    board.flatten.map(&:value)
+  end
+
   def fetch_box(box_index)
     case
       when box_index == 1
@@ -83,8 +86,6 @@ class Grid
         @board[6..9].map{|row| row[3..5]}
       when box_index == 9
         @board[6..9].map{|row| row[6..9]}
-      else
-        # puts "error"
     end
   end
 
@@ -119,22 +120,9 @@ class Grid
     end.count == 0
   end
 
-  # def board_unsolvable?
-  #   @board.flatten.select do |cell|
-  #     !cell.solvable?
-  #   end.count >= 1
-  # end
-
 SIZE = 81
 
   def solve_board
-    # if !board_unsolvable?
-    #   until solved?
-    #     solve
-    #   end
-    # elsif board_unsolvable?
-    #   try_harder!
-    # end
     outstanding_before, looping = SIZE, false
     while !solved? && !looping
       solve

@@ -1,11 +1,14 @@
 require 'grid'
-#Grid has the method that solves the puzzle
 
 describe Grid do
-  let(:puzzle) {"800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
+  let(:puzzle) {"209703810410205607875196023306520100100004359047309068000400980924867001050000002"}
+  let(:hard_puzzle) {"800000000003600000070090200050007000000045700000100030001000068008500010090000400"}
   let(:grid) {Grid.new puzzle}
+  let(:hard_grid) {Grid.new hard_puzzle}
   let(:board) {grid.board}
+  let(:hard_board) {hard_grid.board}
   before {grid.set_board}
+  before {hard_grid.set_board}
 
   it 'fills a board with 81 instances of the cell class' do
     expect(grid.board.flatten.all? {|cell| cell.is_a?(Cell)} ).to be_true
@@ -15,8 +18,9 @@ describe Grid do
     expect(grid.board).to be_an_instance_of Array
   end
 
-  xit 'find the value at each cell' do
-    expect(grid.cell_value(0,0)).to eq 8
+  it 'find the value at each cell' do
+    expect(grid.cell_value(0,0)).to eq 2
+    expect(hard_grid.cell_value(0,0)).to eq 8
   end
 
   it 'should have 9 elements in each row' do
@@ -82,26 +86,28 @@ describe Grid do
     expect(grid.find_box_index(3,4)).to eq 5
   end
 
+  # Doesn't assign hard neighbours properly
   xit 'assigns neighbours to the cell' do
     grid.assign_neighbours_to board[0][0]
-    grid.assign_neighbours_to board[7][2]
+    hard_grid.assign_neighbours_to hard_board[7][2]
 
-    expect(board[0][0].neighbours).to match_array [0,1,5,0,0,3,0,0,2,0,0,2,4,5,0,9,8,0,0,1,5,0,0,0,2,7,0]
-    expect(board[7][2].neighbours).to match_array [8,6,0,0,7,0,0,2,5,5,0,0,0,1,3,0,0,7,9,0,0,8,6,0,0,3,7]
+
+    expect(board[0][0].neighbours).to match_array [2,0,9,7,0,3,8,1,0,2,4,8,3,1,0,0,9,0,2,0,9,4,1,0,8,7,5]
+    expect(hard_board[0][1].neighbours).to match_array [8,6,0,0,7,0,0,2,5,5,0,0,0,1,3,0,0,7,9,0,0,8,6,0,0,3,7]
   end
 
-  xit 'iterates once through and attempts to solve the board' do
+  it 'iterates once through and attempts to solve the board' do
+    first_iteration = grid.get_cell_values_from board
     grid.solve
-
-    expect(grid.cell_value(8,0)).to eq 1
-    expect(grid.cell_value(4,8)).to eq 9
+    second_iteration = grid.get_cell_values_from board
+  
+    expect(first_iteration).not_to eq second_iteration
   end
 
-
-  xit 'checks to see if the entire grid has been solved' do
+  it 'checks to see if the entire grid has been solved' do
     grid.solve
    
-    expect(grid.solved?).to be_false 
+    expect(grid.solved?).to be_false
   end
 
   it 'displays the whole grid' do
@@ -121,6 +127,14 @@ describe Grid do
 
   it 'creates a new copy of a board' do
     expect(grid.replicate(board)).to be_an_instance_of Grid
+  end
+
+  it 'solves a hard board' do
+    hard_grid.inspect_board
+    hard_grid.solve_board
+    hard_grid.inspect_board
+
+    expect(hard_grid.solved?).to be_true
   end
 end
 
