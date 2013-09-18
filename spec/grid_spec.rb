@@ -13,26 +13,21 @@ describe Grid do
   it 'fills a board with 81 instances of the cell class' do
     expect(grid.board.flatten.all? {|cell| cell.is_a?(Cell)} ).to be_true
   end
-  
   it 'checks that the board is an array' do
     expect(grid.board).to be_an_instance_of Array
   end
 
   it 'find the value at each cell' do
-    expect(grid.cell_value(0,0)).to eq 2
-    expect(hard_grid.cell_value(0,0)).to eq 8
-  end
-
-  it 'should have 9 elements in each row' do
-    expect(grid.fetch_row(0).count).to eq 9
+    expect(board[0][0].value).to eq 2
+    expect(hard_board[0][0].value).to eq 8
   end
   
   it 'returns 9 cells when row is called' do
     expect(grid.fetch_row(2).count).to eq 9
+    expect(grid.fetch_row(1).all? { |row| row.is_a?(Cell)}).to be_true
   end
 
   it 'returns the contents of a specific row' do
-    expect(grid.fetch_row(1).all? { |row| row.is_a?(Cell)}).to be_true
   end
 
   it 'returns 9 cells when column is called' do
@@ -44,13 +39,13 @@ describe Grid do
   end
 
   it 'returns the contents of a specific box' do
-    expect(grid.find_box_index(0,2)).to eq 1
-    expect(grid.find_box_index(0,0)).to eq 1
-    expect(grid.find_box_index(5,8)).to eq 6
+    expect(grid.board[0][2].box_index).to eq 1
+    expect(grid.board[0][0].box_index).to eq 1
+    expect(grid.board[5][8].box_index).to eq 6
   end
 
   it 'returns the cells box index value' do
-    expect(grid.find_box_index(3,8)).to eq 6
+    expect(grid.board[3][8].box_index).to eq 6
   end
   
   it 'returns an array of cells located in the appropriate box' do
@@ -70,30 +65,29 @@ describe Grid do
 
   it 'assigns row indexes to each cell' do
 
-    expect(grid.find_row_index(4,6)).to eq 4
-    expect(grid.find_row_index(6,2)).to eq 6
+    expect(grid.board[4][6].row_index).to eq 4
+    expect(grid.board[6][2].row_index).to eq 6
   end
 
   it 'assigns column indexes to each cell' do
 
-    expect(grid.find_column_index(3,2)).to eq 2
+    expect(grid.board[3][2].column_index).to eq 2
   end
 
   it 'sets the board ready for adding neighbours and solving' do
 
-    expect(grid.find_column_index(4,6)).to eq 6
-    expect(grid.find_row_index(7,2)).to eq 7
-    expect(grid.find_box_index(3,4)).to eq 5
+    expect(grid.board[4][6].column_index).to eq 6
+    expect(grid.board[7][2].row_index).to eq 7
+    expect(grid.board[3][4].box_index).to eq 5
   end
 
-  # Doesn't assign hard neighbours properly
-  xit 'assigns neighbours to the cell' do
+  it 'assigns neighbours to the cell' do
     grid.assign_neighbours_to board[0][0]
     hard_grid.assign_neighbours_to hard_board[7][2]
 
 
     expect(board[0][0].neighbours).to match_array [2,0,9,7,0,3,8,1,0,2,4,8,3,1,0,0,9,0,2,0,9,4,1,0,8,7,5]
-    expect(hard_board[0][1].neighbours).to match_array [8,6,0,0,7,0,0,2,5,5,0,0,0,1,3,0,0,7,9,0,0,8,6,0,0,3,7]
+    expect(hard_board[7][2].neighbours).to match_array [0,0,8,5,0,0,0,1,0,0,3,0,0,0,0,1,8,0,0,0,1,0,0,8,0,9,0]
   end
 
   it 'iterates once through and attempts to solve the board' do
@@ -122,7 +116,7 @@ describe Grid do
   end
 
   it 'creates board string' do
-    expect(grid.create_board_string(board)).to be_an_instance_of String
+    expect(grid.create_current_puzzle_string_of board).to be_an_instance_of String
   end
 
   it 'creates a new copy of a board' do

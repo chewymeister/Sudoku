@@ -3,7 +3,7 @@ require 'cell'
 describe Cell do
 	let(:cell) {Cell.new 0}
 
-  it 'checks to see if it is cell is empty' do
+  it 'checks to see if cell is empty' do
     expect(cell.filled_out?).to be_false
   end
 
@@ -37,7 +37,8 @@ describe Cell do
   
   it 'takes away list of neighbours from candidates when called to by grid' do
     neighbours = [1,2,6,7,8,9]
-    expect(cell.attempt_to_solve neighbours ).to match_array [3,4,5]
+    cell.attempt_to_solve neighbours
+    expect(cell.candidates ).to match_array [3,4,5]
   end
 
   it 'when there is only one possibility left in candidates, it is assigned to value' do

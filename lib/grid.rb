@@ -2,6 +2,8 @@ require 'cell'
 require 'box'
 
 class Grid
+  
+  SIZE = 81
 
   attr_reader :board
   def initialize puzzle
@@ -30,36 +32,16 @@ class Grid
         cell.assign_column(column_index)
       end
     end                 
-  end
-
-  def find_row_index row,column
-    @board[row][column].row_index
-  end
-
-  def find_column_index row,column
-    @board[row][column].column_index
-  end
-
-  def find_neighbours row,column
-    @board[row][column].neighbours
-  end
-
-  def cell_value row,column
-    @board[row][column].value
-  end
-
-  def find_box_index row,column
-    @board[row][column].box_index
-  end
+  end 
 
   def fetch_row(row_index)
-    @board[row_index]
+    @board[row_index].flatten
   end
 
   def fetch_column(column_index)
     @board.map do |row|
       row[column_index]
-    end
+    end.flatten
   end
 
   def get_cell_values_from board
@@ -67,26 +49,9 @@ class Grid
   end
 
   def fetch_box(box_index)
-    case
-      when box_index == 1
-        @board[0..2].map{|row| row[0..2]}
-      when box_index == 2
-        @board[0..2].map{|row| row[3..5]}
-      when box_index == 3
-        @board[0..2].map{|row| row[6..9]}
-      when box_index == 4
-        @board[3..5].map{|row| row[0..2]}
-      when box_index == 5
-        @board[3..5].map{|row| row[3..5]}
-      when box_index == 6
-        @board[3..5].map{|row| row[6..9]}
-      when box_index == 7
-        @board[6..9].map{|row| row[0..2]}
-      when box_index == 8
-        @board[6..9].map{|row| row[3..5]}
-      when box_index == 9
-        @board[6..9].map{|row| row[6..9]}
-    end
+    @board.flatten.select do |cell|
+      cell.box_index == box_index
+    end.flatten
   end
 
   def set_board
@@ -97,9 +62,9 @@ class Grid
 
   def assign_neighbours_to cell
       neighbours = []
-      neighbours << fetch_row(cell.row_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_column(cell.column_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_box(cell.box_index).flatten.map{|cell|cell.value}
+      neighbours <<fetch_row(cell.row_index).map {|cell| cell.value}
+      neighbours <<fetch_column(cell.column_index).map {|cell| cell.value}
+      neighbours <<fetch_box(cell.box_index).map {|cell| cell.value}
       cell.assign neighbours
   end
 
@@ -120,8 +85,6 @@ class Grid
     end.count == 0
   end
 
-SIZE = 81
-
   def solve_board
     outstanding_before, looping = SIZE, false
     while !solved? && !looping
@@ -133,10 +96,14 @@ SIZE = 81
       try_harder unless solved?
   end
 
-  def try_harder
+  def create_blank_cell
     blank_cell = @board.flatten.select do |cell|
       !cell.filled_out?
     end.first
+  end
+
+  def try_harder
+    blank_cell = create_blank_cell
 
     blank_cell.candidates.each do |candidate|
       blank_cell.assume candidate
@@ -146,7 +113,7 @@ SIZE = 81
 
       if board_copy.solved?
         steal_solution(board_copy)
-        return @board
+        break
       end
     end
   end
@@ -156,16 +123,15 @@ SIZE = 81
   end
 
   def replicate board
-    board_replicate = Grid.new create_board_string(board)
+    board_replicate = Grid.new create_current_puzzle_string_of(board)
     board_replicate.set_board
     board_replicate
   end
 
-  def create_board_string board
-     board_string = board.flatten.map do |cell|
+  def create_current_puzzle_string_of board
+    current_puzzle_string = board.flatten.map do |cell|
       cell.value
     end.join
-    board_string
   end
 
   def inspect_board
@@ -178,6 +144,4 @@ SIZE = 81
     end
   end
 
-
 end
-

@@ -4,13 +4,9 @@
 #'430060090001020746607050080005007000010840000000003002070905800928100300000200000'
 #'650008003700010890310590047030281006200000004501607000820060570104709302970020400'
 
-# require 'cell'
-# require 'grid'
-
 #HARD PUZZLE:"800000000003600000070090200050007000000045700000100030001000068008500010090000400"
 #ULTIMATE HARD PUZZLE:"00000000000000000000000000000000000000000000000000000000000000000000000000000000"
-# require 'cell'
-# require 'grid'
+
 
 class Box
 
@@ -75,11 +71,14 @@ class Cell
   def assign_column index
     @column_index = index
   end
+  
+  def assign_box_index value
+    @box_index = value
+  end
 
   def assign(neighbours)
     @neighbours += neighbours
     @neighbours.flatten!
-    # @neighbours.clear
   end
 
   def filled_out?
@@ -95,40 +94,28 @@ class Cell
   end
 
   def attempt_to_solve(neighbours)
-    # attempt = @candidates - neighbours
-    # if attempt == @candidates
-    #   @neighbours.clear
-    #   unsolvable!
-    # else
       @candidates -= neighbours
       if @candidates.count == 1
         @value = @candidates.pop
         @neighbours.clear
       else
         @neighbours.clear
-        @candidates
       end
-    # end
   end
 
   def assume candidate
     @value = candidate
   end
 
-  def assign_box_index value
-    @box_index = value
-  end
 end
 
-# require 'cell'
-# require 'box'
-
 class Grid
+  
+  SIZE = 81
 
   attr_reader :board
   def initialize puzzle
     @puzzle = puzzle.chars
-    @board = nil
     @box = Box.new
   end
 
@@ -153,61 +140,26 @@ class Grid
         cell.assign_column(column_index)
       end
     end                 
-  end
-
-  def find_row_index row,column
-    @board[row][column].row_index
-  end
-
-  def find_column_index row,column
-    @board[row][column].column_index
-  end
-
-  def find_neighbours row,column
-    @board[row][column].neighbours
-  end
-
-  def cell_value row,column
-    @board[row][column].value
-  end
-
-  def find_box_index row,column
-    @board[row][column].box_index
-  end
+  end 
 
   def fetch_row(row_index)
-    @board[row_index]
+    @board[row_index].flatten
   end
 
   def fetch_column(column_index)
     @board.map do |row|
       row[column_index]
-    end
+    end.flatten
+  end
+
+  def get_cell_values_from board
+    board.flatten.map(&:value)
   end
 
   def fetch_box(box_index)
-    case
-      when box_index == 1
-        @board[0..2].map{|row| row[0..2]}
-      when box_index == 2
-        @board[0..2].map{|row| row[3..5]}
-      when box_index == 3
-        @board[0..2].map{|row| row[6..9]}
-      when box_index == 4
-        @board[3..5].map{|row| row[0..2]}
-      when box_index == 5
-        @board[3..5].map{|row| row[3..5]}
-      when box_index == 6
-        @board[3..5].map{|row| row[6..9]}
-      when box_index == 7
-        @board[6..9].map{|row| row[0..2]}
-      when box_index == 8
-        @board[6..9].map{|row| row[3..5]}
-      when box_index == 9
-        @board[6..9].map{|row| row[6..9]}
-      else
-        # puts "error"
-    end
+    @board.flatten.select do |cell|
+      cell.box_index == box_index
+    end.flatten
   end
 
   def set_board
@@ -218,9 +170,9 @@ class Grid
 
   def assign_neighbours_to cell
       neighbours = []
-      neighbours << fetch_row(cell.row_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_column(cell.column_index).flatten.map {|cell|cell.value}
-      neighbours << fetch_box(cell.box_index).flatten.map{|cell|cell.value}
+      neighbours <<fetch_row(cell.row_index).map {|cell| cell.value}
+      neighbours <<fetch_column(cell.column_index).map {|cell| cell.value}
+      neighbours <<fetch_box(cell.box_index).map {|cell| cell.value}
       cell.assign neighbours
   end
 
@@ -241,22 +193,7 @@ class Grid
     end.count == 0
   end
 
-  # def board_unsolvable?
-  #   @board.flatten.select do |cell|
-  #     !cell.solvable?
-  #   end.count >= 1
-  # end
-
-SIZE = 81
-
   def solve_board
-    # if !board_unsolvable?
-    #   until solved?
-    #     solve
-    #   end
-    # elsif board_unsolvable?
-    #   try_harder!
-    # end
     outstanding_before, looping = SIZE, false
     while !solved? && !looping
       solve
@@ -267,39 +204,42 @@ SIZE = 81
       try_harder unless solved?
   end
 
-  def try_harder
+  def create_blank_cell
     blank_cell = @board.flatten.select do |cell|
       !cell.filled_out?
     end.first
+  end
+
+  def try_harder
+    blank_cell = create_blank_cell
 
     blank_cell.candidates.each do |candidate|
       blank_cell.assume candidate
-      board = replicate(@board)
-      board.set_board
-      board.solve_board
+      board_copy = replicate(@board)
 
-      if board.solved?
-        steal_solution(board)
-        return @board
+      board_copy.solve_board
+
+      if board_copy.solved?
+        steal_solution(board_copy)
+        break
       end
     end
   end
 
   def steal_solution board
-    @board = board
+    @board = board.board
   end
 
   def replicate board
-    board = Grid.new create_board_string(board)
-    board.set_board
-    board
+    board_replicate = Grid.new create_current_puzzle_string_of(board)
+    board_replicate.set_board
+    board_replicate
   end
 
-  def create_board_string board
-     board_string = board.flatten.map do |cell|
+  def create_current_puzzle_string_of board
+    current_puzzle_string = board.flatten.map do |cell|
       cell.value
     end.join
-    board_string
   end
 
   def inspect_board
@@ -312,6 +252,4 @@ SIZE = 81
     end
   end
 
-
 end
-

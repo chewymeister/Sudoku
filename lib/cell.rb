@@ -21,11 +21,14 @@ class Cell
   def assign_column index
     @column_index = index
   end
+  
+  def assign_box_index value
+    @box_index = value
+  end
 
   def assign(neighbours)
     @neighbours += neighbours
     @neighbours.flatten!
-    # @neighbours.clear
   end
 
   def filled_out?
@@ -41,21 +44,17 @@ class Cell
   end
 
   def attempt_to_solve(neighbours)
-    @candidates -= neighbours
-    if @candidates.count == 1
-      @value = @candidates.pop
-      @neighbours.clear
-    else
-      @neighbours.clear
-      @candidates
-    end
+      @candidates -= neighbours
+      if @candidates.count == 1
+        @value = @candidates.pop
+        @neighbours.clear
+      else
+        @neighbours.clear
+      end
   end
 
   def assume candidate
     @value = candidate
   end
 
-  def assign_box_index value
-    @box_index = value
-  end
 end
