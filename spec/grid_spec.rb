@@ -27,20 +27,13 @@ describe Grid do
     expect(grid.fetch_row(1).all? { |row| row.is_a?(Cell)}).to be_true
   end
 
-  it 'returns the contents of a specific row' do
-  end
-
   it 'returns 9 cells when column is called' do
     expect(grid.fetch_column(3).count).to eq 9
-  end
-
-  it 'returns the contents of a specific column' do
     expect(grid.fetch_column(2).all? {|column| column.is_a?(Cell)}).to be_true
   end
 
   it 'returns the contents of a specific box' do
     expect(grid.board[0][2].box_index).to eq 1
-    expect(grid.board[0][0].box_index).to eq 1
     expect(grid.board[5][8].box_index).to eq 6
   end
 
