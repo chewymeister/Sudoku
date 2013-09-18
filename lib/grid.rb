@@ -6,7 +6,7 @@ class Grid
   attr_reader :board
   def initialize puzzle
     @puzzle = puzzle.chars
-    @board = nil
+    # @board = nil
     @box = Box.new
   end
 

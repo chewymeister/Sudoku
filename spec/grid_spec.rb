@@ -104,31 +104,17 @@ describe Grid do
     expect(grid.solved?).to be_false 
   end
 
-  it 'it solves the entire grid' do
-    grid.solve_board
-  
-    expect(grid.solved?).to be_true
-  end
-
   it 'displays the whole grid' do
     grid.inspect_board
   end
 
-  it 'displays a solved board' do
+  it 'it solves the entire grid' do
     grid.solve_board
     grid.inspect_board
+  
+    expect(grid.solved?).to be_true
   end
 
-  xit 'checks to see if board is unsolvable' do
-    grid.board[0][0].unsolvable!
-    # grid.solve_board
-
-    expect(grid.board_unsolvable?).to be_true
-  end
-
-  # it 'access candidates' do
-  #   expect(grid.try_harder).to eq [1,2,3,4,5,6,7,8,9]
-  # end
   it 'creates board string' do
     expect(grid.create_board_string(board)).to be_an_instance_of String
   end
@@ -136,12 +122,6 @@ describe Grid do
   it 'creates a new copy of a board' do
     expect(grid.replicate(board)).to be_an_instance_of Grid
   end
-
-  # it 'solves a hard sudoku puzzle' do
-  #   grid.solve_board
-  #   grid.inspect_board
-  # end
-
 end
 
 

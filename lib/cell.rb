@@ -41,20 +41,14 @@ class Cell
   end
 
   def attempt_to_solve(neighbours)
-    # attempt = @candidates - neighbours
-    # if attempt == @candidates
-    #   @neighbours.clear
-    #   unsolvable!
-    # else
-      @candidates -= neighbours
-      if @candidates.count == 1
-        @value = @candidates.pop
-        @neighbours.clear
-      else
-        @neighbours.clear
-        @candidates
-      end
-    # end
+    @candidates -= neighbours
+    if @candidates.count == 1
+      @value = @candidates.pop
+      @neighbours.clear
+    else
+      @neighbours.clear
+      @candidates
+    end
   end
 
   def assume candidate
